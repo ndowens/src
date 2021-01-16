@@ -248,10 +248,10 @@ main(int argc, char *argv[])
 	long l;
 	char **expr;
 	const char *errstr;
-
+#ifdef PLEDGE
 	if (pledge("stdio rpath", NULL) == -1)
 		err(2, "pledge");
-
+#endif
 	SLIST_INIT(&patfilelh);
 	switch (__progname[0]) {
 	case 'e':
@@ -294,7 +294,7 @@ main(int argc, char *argv[])
 			break;
 		case 'A':
 		case 'B':
-			l = strtonum(optarg, 1, INT_MAX, &errstr);
+			l = strtouq(optarg, INT_MAX, &errstr);
 			if (errstr != NULL)
 				errx(2, "context %s", errstr);
 			if (c == 'A')
@@ -306,7 +306,7 @@ main(int argc, char *argv[])
 			if (optarg == NULL)
 				Aflag = Bflag = 2;
 			else {
-				l = strtonum(optarg, 1, INT_MAX, &errstr);
+				l = strtouq(optarg, INT_MAX, &errstr);
 				if (errstr != NULL)
 					errx(2, "context %s", errstr);
 				Aflag = Bflag = (int)l;
@@ -389,7 +389,7 @@ main(int argc, char *argv[])
 			break;
 		case 'm':
 			mflag = 1;
-			mlimit = mcount = strtonum(optarg, 0, LLONG_MAX,
+			mlimit = mcount = strtouq(optarg, LLONG_MAX,
 			   &errstr);
 			if (errstr != NULL)
 				errx(2, "invalid max-count %s: %s",
@@ -476,7 +476,7 @@ main(int argc, char *argv[])
 	if (Eflag)
 		cflags |= REG_EXTENDED;
 	if (Fflag)
-		cflags |= REG_NOSPEC;
+		cflags |= REG_NOSUB;
 #ifdef SMALL
 	/* Sorry, this won't work */
 	if (Fflag && wflag)
